@@ -135,12 +135,13 @@ class Trainer(BaseTrainer):
                 best_epoch = should_stop
                 logger.info("Now stop training..")
                 return best_epoch
-            
+
         self.forward_sampling(
             prompts=[
                 ["<sos>", "我", "来"], 
                 ["<sos>", "清", "晨"], 
-                ["<sos>", "她", "问"]
+                ["<sos>", "她", "问"],
+                ["<sos>"]
             ],
         )
         return False

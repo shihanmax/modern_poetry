@@ -18,7 +18,6 @@ run = neptune.init(
     api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIyOTU4OTEzMS02YjAyLTQ2ZDEtYTdhYS0xYjdhODY1MjNlMmMifQ=="
 )
 
-
 num_embeddings = 4865
 embedding_dim = 256
 hidden_dim = 256
@@ -36,7 +35,7 @@ not_early_stopping_at_first = 10
 es_with_no_improvement_after = 10
 verbose = 10
 
-max_seq_len = 1000
+max_seq_len = 300
 wv_path = "./resource/w2v/word.wv"
 all_poems_path = "./resource/data"
 model_path = "./output/model.ep"
