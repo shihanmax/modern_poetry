@@ -25,7 +25,7 @@ hidden_dim = 256
 test_ratio = 0.1
 valid_ratio = 0.1
 
-batch_size = 3
+batch_size = 64
 lr = 2e-3
 num_warmup_epochs = 3
 epochs = 50
@@ -40,8 +40,7 @@ wv_path = "./resource/w2v/word.wv"
 all_poems_path = "./resource/data"
 model_path = "./output/model.ep"
 
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 vocab = Vocab(wv_path)
 
