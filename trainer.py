@@ -116,7 +116,7 @@ class Trainer(BaseTrainer):
         }
 
         # neptune record
-        run[f"{phase.name}/loss"].log(record[avg_loss])
+        run[f"{phase.name}/loss"].log(record["avg_loss"])
         
         self.train_record.append(record)
 
