@@ -39,7 +39,7 @@ class Generator(nn.Module):
         self.cross_entropy_loss = nn.CrossEntropyLoss(ignore_index=0)
         
     def _get_initial_hidden(self, bs):
-        h0 = torch.ones(2, bs, self.hidden_dim).to(self.device)
+        h0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
         c0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
         return h0, c0
     
@@ -62,7 +62,7 @@ class Generator(nn.Module):
             output, batch_first=True, total_length=max_src_len,
         )
         
-        output = self.fc(output)
+        output = self.relu(self.fc(output))
         output = output.permute(0, 2, 1)
         loss = self.cross_entropy_loss(output, tgt)
         
