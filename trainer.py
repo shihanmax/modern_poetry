@@ -141,7 +141,7 @@ class Trainer(BaseTrainer):
                 ["<sos>", "我", "来"], 
                 ["<sos>", "清", "晨"], 
                 ["<sos>", "她", "问"],
-                ["<sos>"]
+                ["<sos>", "夕", "阳"],
             ],
         )
         return False
@@ -163,8 +163,9 @@ class Trainer(BaseTrainer):
         result = self.model.forward(prompts_token_ids, self.max_decode_len)
         
         print("-==Decoding samples==-")
-        print(
-            translate_logits(
-                result, self.vocab.idx2str, self.vocab.unk, self.vocab.eos
-            )
+        res = translate_logits(
+            result, self.vocab.idx2str, self.vocab.unk, self.vocab.eos
         )
+        
+        for r in res:
+            print("".join(r))
