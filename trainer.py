@@ -158,7 +158,7 @@ class Trainer(BaseTrainer):
             for prompt in prompts
         ]
         
-        prompts_token_ids = torch.tensor(prompts_ids)
+        prompts_token_ids = torch.tensor(prompts_ids).to(self.device)
         
         result = self.model.forward(prompts_token_ids, self.max_decode_len)
         
