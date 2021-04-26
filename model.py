@@ -62,7 +62,7 @@ class Generator(nn.Module):
             output, batch_first=True, total_length=max_src_len,
         )
         
-        output = self.relu(self.fc(output))
+        output = self.fc(output)
         output = output.permute(0, 2, 1)
         loss = self.cross_entropy_loss(output, tgt)
         
