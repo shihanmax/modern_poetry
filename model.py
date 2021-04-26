@@ -93,6 +93,8 @@ class Generator(nn.Module):
         while len(result) < max_decode_len:
             curr_out, hidden = self.decode_one_step(inp, hidden)
             
+            curr_out = self.fc(curr_out)
+            
             # we'll do some sampling work here in the feature!
             token_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
             token_idx = token_idx.squeeze()
