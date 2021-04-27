@@ -1,9 +1,7 @@
 # user defined files
 output/*
 runs/
-resource/ancient/*
-resource/modern/*
-resource/
+resource/*
 test.py
 test.ipynb
 .DS_Store
