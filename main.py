@@ -26,7 +26,7 @@ hidden_dim = 256
 test_ratio = 0.1
 valid_ratio = 0.1
 
-batch_size = 2
+batch_size = 1024
 lr = 2e-3
 num_warmup_epochs = 3
 epochs = 50
