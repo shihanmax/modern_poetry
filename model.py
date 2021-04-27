@@ -43,8 +43,7 @@ class Generator(nn.Module):
         c0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
         return h0, c0
     
-    def forward_loss(self, src, tgt, valid_length):
-        
+    def forward_lstm(self, src, valid_length):
         _, max_src_len = src.shape[:2]
         
         embedding = self.embedding(src)  # bs, max_src_len, embedding_dim
@@ -62,37 +61,31 @@ class Generator(nn.Module):
             output, batch_first=True, total_length=max_src_len,
         )
         
+        return output, (hn, cn)
+
+    def forward_loss(self, src, tgt, valid_length):
+        output, _ = self.forward_lstm(src, valid_length)
         output = self.fc(output)  # bs, max_len, vocab_size
         output = output.permute(0, 2, 1)
         loss = self.cross_entropy_loss(output, tgt)
         
         return loss
     
-    def forward(self, token_ids, max_decode_len):
+    def forward_decoding(self, token_ids, valid_length, max_decode_len):
         """Decode by given tokens.
 
         Args:
             token_ids (Tensor): bs, some_len
         """
-        embeddings = self.embedding(token_ids)  # bs, some_len, embedding_dim
-        
         result = []
         
-        initial_hidden = self._get_initial_hidden(token_ids.shape[0])
-         
-        hidden = initial_hidden 
-        for step in range(embeddings.shape[1]):
-            curr_out, hidden = self.decode_one_step(
-                embeddings[:, step, :].unsqueeze(1), hidden,
-            )
-
-            result.append(token_ids[:, step])  # bs, 
+        _, hidden = self.forward_lstm(token_ids, valid_length)
         
-        inp = embeddings[:, -1, :].unsqueeze(1)
+        inp = token_ids[:, -1].unsqueeze(1)  # TODO
 
         while len(result) < max_decode_len:
-            curr_out, hidden = self.decode_one_step(inp, hidden)
-            
+            inp = self.embedding(inp)
+            curr_out, hidden = self.lstm(inp, hidden)
             curr_out = self.fc(curr_out)
             
             # we'll do some sampling work here in the feature!
@@ -101,20 +94,8 @@ class Generator(nn.Module):
             
             result.append(token_idx)
 
-            inp = self.embedding(token_idx.unsqueeze(1))  # bs, 1, embed_dim
-        
+            inp = token_idx.unsqueeze(1)  # bs, 1
+
         result = torch.stack(result, dim=1)  # bs, max_decode_len 
-        
+
         return result
-
-    def decode_one_step(self, token_embedding, hidden):
-        """Forward one step for decoding.
-
-        Args:
-            token_embedding (Tensor): bs, 1, embedding_dim
-            
-        Return:
-            output (Tensor): bs, 1, hidden_dim
-        """
-        output, hidden = self.lstm(token_embedding, hidden)
-        return output, hidden

@@ -26,7 +26,7 @@ hidden_dim = 256
 test_ratio = 0.1
 valid_ratio = 0.1
 
-batch_size = 64
+batch_size = 2
 lr = 2e-3
 num_warmup_epochs = 3
 epochs = 50
@@ -36,10 +36,10 @@ not_early_stopping_at_first = 10
 es_with_no_improvement_after = 10
 verbose = 10
 
-max_seq_len = 300
+max_seq_len = 50
 wv_path = "./resource/w2v/word.wv"
 modern_poems_path = "./resource/modern/"
-ancient_poems_path = "./resource/modern/"
+ancient_poems_path = "./resource/ancient/"
 model_path = "./output/model.ep"
 
 device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
@@ -54,7 +54,7 @@ model = Generator(
     device=device,
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)
+all_poems = load_ancient_poems(ancient_poems_path)[:30]
 
 all_length = len(all_poems)
 test_num = round(test_ratio * all_length)

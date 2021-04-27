@@ -157,10 +157,13 @@ class Trainer(BaseTrainer):
             [self.vocab.str2idx.get(i) for i in prompt]
             for prompt in prompts
         ]
+        valid_length = torch.tensor([len(i) for i in prompts_ids])
         
         prompts_token_ids = torch.tensor(prompts_ids).to(self.device)
         
-        result = self.model.forward(prompts_token_ids, self.max_decode_len)
+        result = self.model.forward_decoding(
+            prompts_token_ids, valid_length, self.max_decode_len,
+        )
         
         print("-==Decoding samples==-")
         res = translate_logits(
