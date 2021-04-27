@@ -1,7 +1,64 @@
 import os
+import csv
 
 
-def load_all_poems(src_dir):
+def load_ancient_poems(src_dir):
+    all_poems = []
+    poet_cnt = 0
+    poem_cnt = 0
+    era_cnt = 0
+    
+    def read_one_csv(csv_path):
+        poems = []
+        poet_set = set()
+
+        with open(csv_path) as frd:
+            lines = csv.reader(frd, delimiter=',', quotechar='|')
+            
+            for row in lines:
+                row = list(map(lambda x: x.strip("\""), row))
+                
+                if len(row) != 4:
+                    continue
+                
+                title, era_, author, body = row
+                
+                if title == "题目":
+                    continue
+
+                if not body:
+                    continue
+                
+                poet_set.add(author)
+                
+                poems.append(
+                    {
+                        "title": title,
+                        "author": author,
+                        "date": "",
+                        "era": era_,
+                        "body": body,
+                    }
+                )
+
+        return len(poet_set), len(poems), poems
+
+    for era in os.listdir(src_dir):
+
+        pt_cnt, pm_cnt, poems = read_one_csv(os.path.join(src_dir, era))
+        
+        all_poems.extend(poems)
+        poet_cnt += pt_cnt
+        poem_cnt += pm_cnt
+        era_cnt += 1
+    
+    print(f"Done parsing, total poet:{poet_cnt}, total poem:{poem_cnt}, "
+          f"total era:{era_cnt}")
+
+    return all_poems
+
+
+def load_modern_poems(src_dir):
 
     all_poems = []
     

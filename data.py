@@ -1,7 +1,4 @@
-import os
 import torch
-
-from .utils import load_all_poems
 
 
 class Dataset(object):

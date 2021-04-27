@@ -16,7 +16,8 @@ from modern_poetry.trainer import Trainer
 from modern_poetry.model import Generator
 from modern_poetry.data import Dataset
 from modern_poetry.vocab import Vocab
-from modern_poetry.utils import load_all_poems, translate_logits
+from modern_poetry.utils import load_modern_poems, translate_logits, load_ancient_poems
+
 
 num_embeddings = 4865
 embedding_dim = 256
@@ -37,10 +38,11 @@ verbose = 10
 
 max_seq_len = 300
 wv_path = "./resource/w2v/word.wv"
-all_poems_path = "./resource/data"
+modern_poems_path = "./resource/modern/"
+ancient_poems_path = "./resource/modern/"
 model_path = "./output/model.ep"
 
-device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 vocab = Vocab(wv_path)
 
@@ -52,7 +54,7 @@ model = Generator(
     device=device,
 )
 
-all_poems = load_all_poems(all_poems_path)
+all_poems = load_ancient_poems(ancient_poems_path)
 
 all_length = len(all_poems)
 test_num = round(test_ratio * all_length)

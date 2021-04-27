@@ -62,7 +62,7 @@ class Generator(nn.Module):
             output, batch_first=True, total_length=max_src_len,
         )
         
-        output = self.fc(output)
+        output = self.fc(output)  # bs, max_len, vocab_size
         output = output.permute(0, 2, 1)
         loss = self.cross_entropy_loss(output, tgt)
         
@@ -79,7 +79,7 @@ class Generator(nn.Module):
         result = []
         
         initial_hidden = self._get_initial_hidden(token_ids.shape[0])
-        
+         
         hidden = initial_hidden 
         for step in range(embeddings.shape[1]):
             curr_out, hidden = self.decode_one_step(
