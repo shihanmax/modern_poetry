@@ -106,7 +106,7 @@ def load_modern_poems(src_dir):
                         else:
                             all_lines.append(line)
                 
-                poem["body"] = all_lines
+                poem["body"] = "\n".join(all_lines)
 
             all_poems.append(poem)
             poem_cnt += 1

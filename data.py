@@ -24,9 +24,7 @@ class Dataset(object):
     
     def handle_one_poem(self, poem):
         body = poem["body"]
-        concat_body = "\n".join(body)
-        
-        src = [self.str2idx.get(token, self.unk) for token in concat_body]
+        src = [self.str2idx.get(token, self.unk) for token in body]
         src = src[:self.max_seq_len - 1]  # truncate
         
         valid_length = len(src)

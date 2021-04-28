@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+    </head>
+
+    <body>
+        <br><br><br><br><br><br><br>
+        
+        <h1 align="center">MOON: A Modern pOet hiding on the cOmmand liNe.</h1>
+        <h4 align="center" style="color:#808080">命令行里的现代诗人</h4> 
+        <br>
+
+        <form action="/gen/" method="post" align="center">
+            <label for="hint">Give me some hint:</label>
+            <input type="hint" name="hint" id="hint" required>
+            <input type="submit" value="Generate!">
+        </form>
+        <br>
+
+        <div align="center">
+            {% for para in GenerateText %}
+                <p>{{para}}</p>
+            {% endfor %}
+            {% if GenerateText %}
+                <a href="/">Clear output</a>
+            {% endif%}
+        </div>
+    </body>
+</html>
