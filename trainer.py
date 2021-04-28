@@ -6,13 +6,10 @@ from nlkit.trainer import BaseTrainer
 from nlkit.utils import Phase, check_should_do_early_stopping
 
 from tqdm import tqdm
-import neptune.new as neptune
 
 from .utils import translate_logits
 
 logger = logging.getLogger(__name__)
-
-run = neptune.get_last_run()
 
 
 class Trainer(BaseTrainer):
@@ -115,9 +112,6 @@ class Trainer(BaseTrainer):
             "avg_loss": avg_loss,
         }
 
-        # neptune record
-        run[f"{phase.name}/loss"].log(record["avg_loss"])
-        
         self.train_record.append(record)
 
         # check should early stopping at valid

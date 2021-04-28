@@ -4,12 +4,6 @@ import torch
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from nlkit.utils import get_linear_schedule_with_warmup_ep, weight_init
-import neptune.new as neptune
-
-# run = neptune.init(
-#     project="shihanmax/modern-poetry", 
-#     api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIyOTU4OTEzMS02YjAyLTQ2ZDEtYTdhYS0xYjdhODY1MjNlMmMifQ=="
-# )
 
 sys.path.append("..")
 from modern_poetry.trainer import Trainer
@@ -42,7 +36,7 @@ modern_poems_path = "./resource/modern/"
 ancient_poems_path = "./resource/ancient/"
 model_path = "./output/model.ep"
 
-device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 vocab = Vocab(wv_path)
 
