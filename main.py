@@ -6,10 +6,10 @@ from torch.utils.data import DataLoader
 from nlkit.utils import get_linear_schedule_with_warmup_ep, weight_init
 import neptune.new as neptune
 
-run = neptune.init(
-    project="shihanmax/modern-poetry", 
-    api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIyOTU4OTEzMS02YjAyLTQ2ZDEtYTdhYS0xYjdhODY1MjNlMmMifQ=="
-)
+# run = neptune.init(
+#     project="shihanmax/modern-poetry", 
+#     api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIyOTU4OTEzMS02YjAyLTQ2ZDEtYTdhYS0xYjdhODY1MjNlMmMifQ=="
+# )
 
 sys.path.append("..")
 from modern_poetry.trainer import Trainer
