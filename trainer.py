@@ -135,7 +135,6 @@ class Trainer(BaseTrainer):
                 ["<sos>", "我", "来"], 
                 ["<sos>", "清", "晨"], 
                 ["<sos>", "她", "问"],
-                ["<sos>", "夕", "阳"],
             ],
         )
         return False

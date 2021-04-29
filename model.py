@@ -27,11 +27,10 @@ class Generator(nn.Module):
             input_size=embedding_dim,
             hidden_size=hidden_dim,
             batch_first=True,
-            bidirectional=True,
         )
         
         self.fc = nn.Linear(
-            in_features=hidden_dim * 2,
+            in_features=hidden_dim,
             out_features=num_embeddings,
         )
         
@@ -61,45 +60,45 @@ class Generator(nn.Module):
             output, batch_first=True, total_length=max_src_len,
         )
         
+        output = self.fc(output)
+         
         return output, (hn, cn)
 
     def forward_loss(self, src, tgt, valid_length):
-        output, _ = self.forward_lstm(src, valid_length)
-        output = self.fc(output)  # bs, max_len, vocab_size
-        output = output.view(-1, output.shape[-1])
+        # bs, max_len, vocab_size
+        output, _ = self.forward_lstm(src, valid_length)    
+        output = output.transpose(-1, -2)
 
-        loss = self.cross_entropy_loss(
-            output.view(-1, output.shape[-1]), 
-            tgt.view(-1)
-        )
+        loss = self.cross_entropy_loss(output, tgt)
         
         return loss
     
-    def forward_decoding(self, token_ids, valid_length, max_decode_len):
+    def forward_decoding(self, hint_token_ids, valid_length, max_decode_len):
         """Decode by given tokens.
 
         Args:
             token_ids (Tensor): bs, some_len
         """
+        _, hint_len = hint_token_ids.shape
+        
         result = []
         
-        _, hidden = self.forward_lstm(token_ids, valid_length)
+        _, hidden = self.forward_lstm(hint_token_ids, valid_length)
         
-        inp = token_ids[:, -1].unsqueeze(1)  # TODO
+        inp = hint_token_ids[:, -1].unsqueeze(1)
 
-        while len(result) < max_decode_len:
+        while len(result) < max_decode_len - hint_len:
             inp = self.embedding(inp)
             curr_out, hidden = self.lstm(inp, hidden)
-            curr_out = self.fc(curr_out)
-            
+
             # we'll do some sampling work here in the feature!
-            token_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
-            token_idx = token_idx.squeeze()
+            inp_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
+            inp_idx = inp_idx.squeeze()
+            result.append(inp_idx)
+
+            inp = inp_idx.unsqueeze(1)  # bs, 1
             
-            result.append(token_idx)
-
-            inp = token_idx.unsqueeze(1)  # bs, 1
-
-        result = torch.stack(result, dim=1)  # bs, max_decode_len 
+        result = torch.stack(result, dim=1)  # bs, max_decode_len - hint_len
+        result = torch.cat([hint_token_ids, result], dim=1)
 
         return result
