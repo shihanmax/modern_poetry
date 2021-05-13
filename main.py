@@ -1,5 +1,5 @@
 import sys
-
+import logging
 import torch
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
@@ -11,7 +11,7 @@ from modern_poetry.model import Generator
 from modern_poetry.data import Dataset
 from modern_poetry.vocab import Vocab
 from modern_poetry.utils import load_modern_poems, translate_logits, load_ancient_poems
-
+logging.basicConfig(level=logging.INFO)
 
 num_embeddings = 4865
 embedding_dim = 256
@@ -21,16 +21,16 @@ test_ratio = 0.1
 valid_ratio = 0.1
 
 batch_size = 1024
-lr = 2e-3
+lr = 1e-3
 num_warmup_epochs = 3
 epochs = 50
 
 gradient_clip = 10
 not_early_stopping_at_first = 10
 es_with_no_improvement_after = 10
-verbose = 10
+verbose = 40
 
-max_seq_len = 50
+max_seq_len = 100
 wv_path = "./resource/w2v/word.wv"
 modern_poems_path = "./resource/modern/"
 ancient_poems_path = "./resource/ancient/"
@@ -122,6 +122,8 @@ trainer = Trainer(
     verbose=verbose,
     vocab=vocab,
     max_decode_len=max_seq_len,
+    idx2str=vocab.idx2str, 
+    str2idx=vocab.str2idx
 )
 
 trainer.start_train()

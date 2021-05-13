@@ -19,6 +19,7 @@ class Trainer(BaseTrainer):
         lr_scheduler, optimizer, weight_init, summary_path, device, criterion,
         total_epoch, model_path, gradient_clip, not_early_stopping_at_first,
         es_with_no_improvement_after, verbose, vocab, max_decode_len,
+        idx2str, str2idx,
     ):
         
         super(Trainer, self).__init__(
@@ -36,6 +37,8 @@ class Trainer(BaseTrainer):
         
         self.loss_record_on_valid = []
         self.train_record = []
+        self.idx2str = idx2str
+        self.str2idx = str2idx
         
     def iteration(self, epoch, data_loader, phase):
         data_iter = tqdm(
@@ -58,6 +61,9 @@ class Trainer(BaseTrainer):
 
             # data to device
             data = {key: value.to(self.device) for key, value in data.items()}
+            
+            # print(f"""{[self.idx2str[i] for i in data["src"][0].numpy().tolist()]}""")
+            # print(f"""{[self.idx2str[i] for i in data["tgt"][0].numpy().tolist()]}""")
             
             # forward the model
             if phase == Phase.TRAIN:
@@ -132,9 +138,9 @@ class Trainer(BaseTrainer):
 
         self.forward_sampling(
             prompts=[
-                ["<sos>", "我", "来"], 
-                ["<sos>", "清", "晨"], 
-                ["<sos>", "她", "问"],
+                ["<sos>", "梦", "里"], 
+                ["<sos>", "花", "开"], 
+                ["<sos>", "大", "漠"],
             ],
         )
         return False
@@ -160,7 +166,7 @@ class Trainer(BaseTrainer):
         
         print("-==Decoding samples==-")
         res = translate_logits(
-            result, self.vocab.idx2str, self.vocab.unk, self.vocab.eos
+            result, self.vocab.idx2str, self.vocab.unk, "<eos>"
         )
         
         for r in res:

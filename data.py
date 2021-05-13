@@ -25,14 +25,13 @@ class Dataset(object):
     def handle_one_poem(self, poem):
         body = poem["body"]
         src = [self.str2idx.get(token, self.unk) for token in body]
-        src = src[:self.max_seq_len - 1]  # truncate
+        src = [self.sos] + src[:self.max_seq_len - 1]  # truncate
+        tgt = src[1:] + [self.eos] 
         
         valid_length = len(src)
-        src.extend([self.pad] * (self.max_seq_len - 1 - valid_length))
-        
-        src = [self.sos] + src
-        tgt = src[1:] + [self.eos]
-        
+        src.extend([self.pad] * (self.max_seq_len - valid_length))
+        tgt.extend([self.pad] * (self.max_seq_len - valid_length))
+
         return {
             "src": torch.tensor(src),
             "tgt": torch.tensor(tgt),

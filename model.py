@@ -23,7 +23,7 @@ class Generator(nn.Module):
             embeddings, freeze=False, padding_idx=0,
         )
         
-        self.lstm = nn.LSTM(
+        self.lstm = nn.GRU(
             input_size=embedding_dim,
             hidden_size=hidden_dim,
             batch_first=True,
@@ -32,17 +32,18 @@ class Generator(nn.Module):
         self.fc = nn.Linear(
             in_features=hidden_dim,
             out_features=num_embeddings,
+            bias=False,
         )
         
         self.relu = nn.ReLU()
-        self.cross_entropy_loss = nn.CrossEntropyLoss()
+        self.cross_entropy_loss = nn.CrossEntropyLoss(ignore_index=0)
         
     def _get_initial_hidden(self, bs):
         h0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
         c0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
         return h0, c0
     
-    def forward_lstm(self, src, valid_length):
+    def forward_rnn(self, src, valid_length):
         _, max_src_len = src.shape[:2]
         
         embedding = self.embedding(src)  # bs, max_src_len, embedding_dim
@@ -54,21 +55,21 @@ class Generator(nn.Module):
 
         # output: [bs, max_src_len, hidden * 2]
         # hn, cn: [2, bs, hidden]
-        output, (hn, cn) = self.lstm(packed_repr)
+        output, hidden = self.lstm(packed_repr)
 
         output, _ = pad_packed_sequence(
             output, batch_first=True, total_length=max_src_len,
         )
         
         output = self.fc(output)
-         
-        return output, (hn, cn)
+        
+        return output, hidden
 
     def forward_loss(self, src, tgt, valid_length):
         # bs, max_len, vocab_size
-        output, _ = self.forward_lstm(src, valid_length)    
+        output, _ = self.forward_rnn(src, valid_length)
         output = output.transpose(-1, -2)
-
+        
         loss = self.cross_entropy_loss(output, tgt)
         
         return loss
@@ -77,20 +78,21 @@ class Generator(nn.Module):
         """Decode by given tokens.
 
         Args:
-            token_ids (Tensor): bs, some_len
+            hint_token_ids (Tensor): bs, some_len
         """
         _, hint_len = hint_token_ids.shape
         
         result = []
-        
-        _, hidden = self.forward_lstm(hint_token_ids, valid_length)
+
+        _, hidden = self.forward_rnn(hint_token_ids, valid_length)
         
         inp = hint_token_ids[:, -1].unsqueeze(1)
 
         while len(result) < max_decode_len - hint_len:
             inp = self.embedding(inp)
             curr_out, hidden = self.lstm(inp, hidden)
-
+            curr_out = self.fc(curr_out)
+            
             # we'll do some sampling work here in the feature!
             inp_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
             inp_idx = inp_idx.squeeze()

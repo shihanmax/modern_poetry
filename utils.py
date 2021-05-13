@@ -144,14 +144,12 @@ def translate_logits(logits, idx_to_str, unk, eos):
     logits = logits.cpu().numpy().tolist()
     
     results = []
-    
     for batch in range(bs):
         curr_batch_result = []
         for idx in logits[batch]:
-            if idx == eos:
+            if idx_to_str.get(idx) == eos:
                 break
             else:
                 curr_batch_result.append(idx_to_str.get(idx, unk))
         results.append(curr_batch_result)
-        
     return results
