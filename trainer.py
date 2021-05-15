@@ -62,8 +62,8 @@ class Trainer(BaseTrainer):
             # data to device
             data = {key: value.to(self.device) for key, value in data.items()}
             
-            # print(f"""{[self.idx2str[i] for i in data["src"][0].numpy().tolist()]}""")
-            # print(f"""{[self.idx2str[i] for i in data["tgt"][0].numpy().tolist()]}""")
+            print(f"""{[self.idx2str[i] for i in data["src"][0].numpy().tolist()]}""")
+            print(f"""{[self.idx2str[i] for i in data["tgt"][0].numpy().tolist()]}""")
             
             # forward the model
             if phase == Phase.TRAIN:
@@ -152,22 +152,29 @@ class Trainer(BaseTrainer):
         return loss
 
     def forward_sampling(self, prompts):
+        self.model.eval()
         prompts_ids = [
-            [self.vocab.str2idx.get(i) for i in prompt]
+            [self.vocab.str2idx.get(i, self.str2idx["<unk>"]) for i in prompt]
             for prompt in prompts
         ]
         valid_length = torch.tensor([len(i) for i in prompts_ids])
-        
+
         prompts_token_ids = torch.tensor(prompts_ids).to(self.device)
         
-        result = self.model.forward_decoding(
-            prompts_token_ids, valid_length, self.max_decode_len,
-        )
+        with torch.no_grad():
+            result = self.model.forward_decoding(
+                prompts_token_ids, valid_length, self.max_decode_len,
+            )
         
         print("-==Decoding samples==-")
         res = translate_logits(
             result, self.vocab.idx2str, self.vocab.unk, "<eos>"
         )
         
+        all_results = []
+        
         for r in res:
-            print("".join(r))
+            all_results.append("".join(r))
+            print(all_results[-1])
+
+        return all_results

@@ -1,1 +1,4 @@
 nlkit==0.0.1b1
+tensorboard
+tqdm
+gensim<=3.9.9

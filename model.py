@@ -80,7 +80,7 @@ class Generator(nn.Module):
         Args:
             hint_token_ids (Tensor): bs, some_len
         """
-        _, hint_len = hint_token_ids.shape
+        bs, hint_len = hint_token_ids.shape
         
         result = []
 
@@ -96,10 +96,10 @@ class Generator(nn.Module):
             # we'll do some sampling work here in the feature!
             inp_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
             inp_idx = inp_idx.squeeze()
-            result.append(inp_idx)
+            result.append(inp_idx.view(bs))
 
-            inp = inp_idx.unsqueeze(1)  # bs, 1
-            
+            inp = inp_idx.view(bs, 1)  # bs, 1
+        
         result = torch.stack(result, dim=1)  # bs, max_decode_len - hint_len
         result = torch.cat([hint_token_ids, result], dim=1)
 

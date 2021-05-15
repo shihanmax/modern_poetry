@@ -20,7 +20,7 @@ hidden_dim = 256
 test_ratio = 0.1
 valid_ratio = 0.1
 
-batch_size = 1024
+batch_size = 3
 lr = 1e-3
 num_warmup_epochs = 3
 epochs = 50
@@ -36,7 +36,7 @@ modern_poems_path = "./resource/modern/"
 ancient_poems_path = "./resource/ancient/"
 model_path = "./output/model.ep"
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 vocab = Vocab(wv_path)
 
@@ -48,7 +48,7 @@ model = Generator(
     device=device,
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)
+all_poems = load_ancient_poems(ancient_poems_path)[10000:10200]
 # all_poems = load_modern_poems(modern_poems_path)[:30]
 
 all_length = len(all_poems)
