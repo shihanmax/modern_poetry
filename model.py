@@ -6,7 +6,8 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 class Generator(nn.Module):
     
     def __init__(
-        self, embeddings, num_embeddings, embedding_dim, hidden_dim, device
+        self, embeddings, num_embeddings, embedding_dim, hidden_dim, 
+        rnn_layers, device,
     ):
         super(Generator, self).__init__()
         self.device = device
@@ -19,13 +20,14 @@ class Generator(nn.Module):
             padding_idx=0,
         )
         
-        self.embedding = self.embedding.from_pretrained(
-            embeddings, freeze=False, padding_idx=0,
-        )
+        # self.embedding = self.embedding.from_pretrained(
+        #     embeddings, freeze=False, padding_idx=0,
+        # )
         
         self.lstm = nn.GRU(
             input_size=embedding_dim,
             hidden_size=hidden_dim,
+            num_layers=rnn_layers,
             batch_first=True,
         )
         
@@ -36,12 +38,7 @@ class Generator(nn.Module):
         )
         
         self.relu = nn.ReLU()
-        self.cross_entropy_loss = nn.CrossEntropyLoss(ignore_index=0)
-        
-    def _get_initial_hidden(self, bs):
-        h0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
-        c0 = torch.zeros(2, bs, self.hidden_dim).to(self.device)
-        return h0, c0
+        self.cross_entropy_loss = nn.CrossEntropyLoss()
     
     def forward_rnn(self, src, valid_length):
         _, max_src_len = src.shape[:2]
@@ -99,7 +96,7 @@ class Generator(nn.Module):
             result.append(inp_idx.view(bs))
 
             inp = inp_idx.view(bs, 1)  # bs, 1
-        
+            
         result = torch.stack(result, dim=1)  # bs, max_decode_len - hint_len
         result = torch.cat([hint_token_ids, result], dim=1)
 

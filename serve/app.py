@@ -28,7 +28,8 @@ def load_trainer():
     num_embeddings = 4865
     embedding_dim = 256
     hidden_dim = 256
-
+    rnn_layers = 3
+    
     test_ratio = 0.1
     valid_ratio = 0.1
 
@@ -58,6 +59,7 @@ def load_trainer():
         num_embeddings=num_embeddings,
         embedding_dim=embedding_dim,
         hidden_dim=hidden_dim,
+        rnn_layers=rnn_layers,
         device=device,
     )
 

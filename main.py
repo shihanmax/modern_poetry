@@ -16,12 +16,13 @@ logging.basicConfig(level=logging.INFO)
 num_embeddings = 4865
 embedding_dim = 256
 hidden_dim = 256
+rnn_layers = 3
 
 test_ratio = 0.1
 valid_ratio = 0.1
 
 batch_size = 3
-lr = 1e-3
+lr = 2e-3
 num_warmup_epochs = 3
 epochs = 50
 
@@ -45,10 +46,11 @@ model = Generator(
     num_embeddings=num_embeddings,
     embedding_dim=embedding_dim,
     hidden_dim=hidden_dim,
+    rnn_layers=rnn_layers,
     device=device,
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)
+all_poems = load_ancient_poems(ancient_poems_path)[:500]
 # all_poems = load_modern_poems(modern_poems_path)[:30]
 
 all_length = len(all_poems)
