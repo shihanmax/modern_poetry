@@ -61,10 +61,7 @@ class Trainer(BaseTrainer):
 
             # data to device
             data = {key: value.to(self.device) for key, value in data.items()}
-            
-            print(f"""{[self.idx2str[i] for i in data["src"][0].numpy().tolist()]}""")
-            print(f"""{[self.idx2str[i] for i in data["tgt"][0].numpy().tolist()]}""")
-            
+
             # forward the model
             if phase == Phase.TRAIN:
                 loss = self.forward_model(data)

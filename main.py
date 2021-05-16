@@ -48,7 +48,7 @@ model = Generator(
     device=device,
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)[10000:10200]
+all_poems = load_ancient_poems(ancient_poems_path)
 # all_poems = load_modern_poems(modern_poems_path)[:30]
 
 all_length = len(all_poems)
