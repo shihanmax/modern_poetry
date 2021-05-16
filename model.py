@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
@@ -71,7 +72,9 @@ class Generator(nn.Module):
         
         return loss
     
-    def forward_decoding(self, hint_token_ids, valid_length, max_decode_len):
+    def forward_decoding(
+        self, hint_token_ids, valid_length, max_decode_len, sampling_topk=-1
+    ):
         """Decode by given tokens.
 
         Args:
@@ -91,11 +94,40 @@ class Generator(nn.Module):
             curr_out = self.fc(curr_out)
             
             # we'll do some sampling work here in the feature!
-            inp_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
-            inp_idx = inp_idx.squeeze()
-            result.append(inp_idx.view(bs))
+            if sampling_topk > 0:
+                max_k = curr_out.shape[-1]
+                top_k = min(max_k, sampling_topk)
+                topk_probs, topk_indices = torch.topk(
+                    curr_out[:, 0, :], k=top_k, dim=-1,
+                )
+                
+                topk_probs /= torch.sum(topk_probs, dim=-1, keepdim=True)
+                topk_probs = torch.softmax(topk_probs, dim=-1)
+                topk_probs = topk_probs.cpu().numpy()
+                topk_indices = topk_indices.cpu().numpy()
+                
+                selected = []
+                
+                for i in range(bs):
+                    prob = topk_probs[i]
+                    indice = topk_indices[i]
+                    
+                    selected.append(
+                        torch.from_numpy(
+                            np.random.choice(indice, size=1, p=prob)
+                        )
+                    )
+                
+                inp_idx = torch.stack(selected, dim=1)  # bs, 1
+                result.append(inp_idx.view(bs))
+                inp = inp_idx.view(bs, 1)
+                
+            else:
+                inp_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
+                inp_idx = inp_idx.squeeze()
+                result.append(inp_idx.view(bs))
 
-            inp = inp_idx.view(bs, 1)  # bs, 1
+                inp = inp_idx.view(bs, 1)  # bs, 1
             
         result = torch.stack(result, dim=1)  # bs, max_decode_len - hint_len
         result = torch.cat([hint_token_ids, result], dim=1)

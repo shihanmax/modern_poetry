@@ -19,7 +19,7 @@ class Trainer(BaseTrainer):
         lr_scheduler, optimizer, weight_init, summary_path, device, criterion,
         total_epoch, model_path, gradient_clip, not_early_stopping_at_first,
         es_with_no_improvement_after, verbose, vocab, max_decode_len,
-        idx2str, str2idx,
+        idx2str, str2idx, sampling_topk,
     ):
         
         super(Trainer, self).__init__(
@@ -39,6 +39,8 @@ class Trainer(BaseTrainer):
         self.train_record = []
         self.idx2str = idx2str
         self.str2idx = str2idx
+        
+        self.sampling_topk = sampling_topk
         
     def iteration(self, epoch, data_loader, phase):
         data_iter = tqdm(
@@ -160,7 +162,8 @@ class Trainer(BaseTrainer):
         
         with torch.no_grad():
             result = self.model.forward_decoding(
-                prompts_token_ids, valid_length, self.max_decode_len,
+                prompts_token_ids, valid_length, self.max_decode_len, 
+                sampling_topk=self.sampling_topk,
             )
         
         print("-==Decoding samples==-")

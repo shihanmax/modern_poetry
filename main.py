@@ -21,10 +21,11 @@ rnn_layers = 3
 test_ratio = 0.1
 valid_ratio = 0.1
 
-batch_size = 3
-lr = 2e-3
+batch_size = 512
+lr = 0.01
 num_warmup_epochs = 3
 epochs = 50
+sampling_topk = 5
 
 gradient_clip = 10
 not_early_stopping_at_first = 10
@@ -50,7 +51,7 @@ model = Generator(
     device=device,
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)[:500]
+all_poems = load_ancient_poems(ancient_poems_path)
 # all_poems = load_modern_poems(modern_poems_path)[:30]
 
 all_length = len(all_poems)
@@ -125,7 +126,8 @@ trainer = Trainer(
     vocab=vocab,
     max_decode_len=max_seq_len,
     idx2str=vocab.idx2str, 
-    str2idx=vocab.str2idx
+    str2idx=vocab.str2idx,
+    sampling_topk=sampling_topk,
 )
 
 trainer.start_train()
