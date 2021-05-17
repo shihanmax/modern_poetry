@@ -7,8 +7,7 @@ from nlkit.utils import Phase, check_should_do_early_stopping
 
 from tqdm import tqdm
 
-from .utils import translate_logits
-
+from .sampler import do_sample
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +18,7 @@ class Trainer(BaseTrainer):
         lr_scheduler, optimizer, weight_init, summary_path, device, criterion,
         total_epoch, model_path, gradient_clip, not_early_stopping_at_first,
         es_with_no_improvement_after, verbose, vocab, max_decode_len,
-        idx2str, str2idx, sampling_topk,
+        idx2str, str2idx, sampling_topk=-1,
     ):
         
         super(Trainer, self).__init__(
@@ -134,14 +133,21 @@ class Trainer(BaseTrainer):
                 best_epoch = should_stop
                 logger.info("Now stop training..")
                 return best_epoch
-
-        self.forward_sampling(
+        
+        do_sample(
+            model=self.model,
+            vocab=self.vocab,
+            str2idx=self.str2idx,
             prompts=[
                 ["<sos>", "梦", "里"], 
                 ["<sos>", "花", "开"], 
                 ["<sos>", "大", "漠"],
             ],
+            max_decode_len=self.max_decode_len,
+            sampling_topk=self.sampling_topk,
+            device=self.device,
         )
+        
         return False
         
     def forward_model(self, data):
@@ -149,32 +155,3 @@ class Trainer(BaseTrainer):
             data["src"], data["tgt"], data["valid_length"],
         )
         return loss
-
-    def forward_sampling(self, prompts):
-        self.model.eval()
-        prompts_ids = [
-            [self.vocab.str2idx.get(i, self.str2idx["<unk>"]) for i in prompt]
-            for prompt in prompts
-        ]
-        valid_length = torch.tensor([len(i) for i in prompts_ids])
-
-        prompts_token_ids = torch.tensor(prompts_ids).to(self.device)
-        
-        with torch.no_grad():
-            result = self.model.forward_decoding(
-                prompts_token_ids, valid_length, self.max_decode_len, 
-                sampling_topk=self.sampling_topk,
-            )
-        
-        print("-==Decoding samples==-")
-        res = translate_logits(
-            result, self.vocab.idx2str, self.vocab.unk, "<eos>"
-        )
-        
-        all_results = []
-        
-        for r in res:
-            all_results.append("".join(r))
-            print(all_results[-1])
-
-        return all_results

@@ -21,7 +21,7 @@ rnn_layers = 3
 test_ratio = 0.1
 valid_ratio = 0.1
 
-batch_size = 512
+batch_size = 10
 lr = 0.01
 num_warmup_epochs = 3
 epochs = 50
@@ -43,15 +43,15 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 vocab = Vocab(wv_path)
 
 model = Generator(
-    embeddings=vocab.embedding.to(torch.float),
     num_embeddings=num_embeddings,
     embedding_dim=embedding_dim,
     hidden_dim=hidden_dim,
     rnn_layers=rnn_layers,
     device=device,
+    pretrained_embeddings=vocab.embedding.to(torch.float),
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)
+all_poems = load_ancient_poems(ancient_poems_path)[:300]
 # all_poems = load_modern_poems(modern_poems_path)[:30]
 
 all_length = len(all_poems)

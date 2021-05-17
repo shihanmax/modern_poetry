@@ -7,8 +7,8 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 class Generator(nn.Module):
     
     def __init__(
-        self, embeddings, num_embeddings, embedding_dim, hidden_dim, 
-        rnn_layers, device,
+        self, num_embeddings, embedding_dim, hidden_dim, rnn_layers, device,
+        pretrained_embeddings=None,
     ):
         super(Generator, self).__init__()
         self.device = device
@@ -21,9 +21,10 @@ class Generator(nn.Module):
             padding_idx=0,
         )
         
-        # self.embedding = self.embedding.from_pretrained(
-        #     embeddings, freeze=False, padding_idx=0,
-        # )
+        if pretrained_embeddings:
+            self.embedding = self.embedding.from_pretrained(
+                pretrained_embeddings, freeze=False, padding_idx=0,
+            )
         
         self.lstm = nn.GRU(
             input_size=embedding_dim,
@@ -73,7 +74,8 @@ class Generator(nn.Module):
         return loss
     
     def forward_decoding(
-        self, hint_token_ids, valid_length, max_decode_len, sampling_topk=-1
+        self, hint_token_ids, valid_length, max_decode_len, sampling_topk=-1,
+        ignore_token_ids=(),
     ):
         """Decode by given tokens.
 
@@ -93,7 +95,7 @@ class Generator(nn.Module):
             curr_out, hidden = self.lstm(inp, hidden)
             curr_out = self.fc(curr_out)
             
-            # we'll do some sampling work here in the feature!
+            # sampling
             if sampling_topk > 0:
                 max_k = curr_out.shape[-1]
                 top_k = min(max_k, sampling_topk)
@@ -102,6 +104,14 @@ class Generator(nn.Module):
                 )
                 
                 topk_probs /= torch.sum(topk_probs, dim=-1, keepdim=True)
+                
+                # add prob mask to special tokens (like <unk>, ...)
+                mask = torch.as_tensor(topk_probs).int()
+                for ignore_id in ignore_token_ids:
+                    mask |= (topk_indices == ignore_id)
+
+                topk_probs = topk_probs.masked_fill(mask, value=-1e9)
+                
                 topk_probs = torch.softmax(topk_probs, dim=-1)
                 topk_probs = topk_probs.cpu().numpy()
                 topk_indices = topk_indices.cpu().numpy()
@@ -121,7 +131,8 @@ class Generator(nn.Module):
                 inp_idx = torch.stack(selected, dim=1)  # bs, 1
                 result.append(inp_idx.view(bs))
                 inp = inp_idx.view(bs, 1)
-                
+            
+            # greedy
             else:
                 inp_idx = torch.argmax(curr_out[:, 0, :], dim=-1)
                 inp_idx = inp_idx.squeeze()
