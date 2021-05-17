@@ -125,7 +125,7 @@ class Generator(nn.Module):
                     selected.append(
                         torch.from_numpy(
                             np.random.choice(indice, size=1, p=prob)
-                        )
+                        ).to(self.device)
                     )
                 
                 inp_idx = torch.stack(selected, dim=1)  # bs, 1
