@@ -106,7 +106,7 @@ class Generator(nn.Module):
                 topk_probs /= torch.sum(topk_probs, dim=-1, keepdim=True)
                 
                 # add prob mask to special tokens (like <unk>, ...)
-                mask = torch.as_tensor(topk_probs).int()
+                mask = torch.as_tensor(topk_probs).bool()
                 for ignore_id in ignore_token_ids:
                     mask |= (topk_indices == ignore_id)
 
