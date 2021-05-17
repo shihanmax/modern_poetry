@@ -21,8 +21,8 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 
-def load_sampler():
-    max_seq_len = 100
+def load_sampler(max_len, model_path):
+    max_seq_len = max_len
 
     num_embeddings = 4865
     embedding_dim = 256
@@ -34,7 +34,7 @@ def load_sampler():
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
     wv_path = os.path.join(base_dir, "..", "./resource/w2v/word.wv")
-    model_path = os.path.join(base_dir, "..", "./output/model.anc")
+    model_path = os.path.join(base_dir, "..", model_path)
     
     sampler = Sampler(
         max_decode_len=max_seq_len, sampling_topk=sampling_topk,
@@ -49,21 +49,11 @@ def load_sampler():
     return sampler
 
 
-sampler = load_sampler()
+modern_sampler = load_sampler(500, "./output/model.mod")
+ancient_sampler = load_sampler(300, "./output/model.anc")
 
 
-@app.route("/")
-def index():
-    return render_template('query.html')
-
-
-@app.route("/gen/", methods=['POST'])
-def forward():
-    global sampler
-    if not sampler:
-        print("no sampler, loading now ...")
-        sampler = load_sampler()
-        
+def inference(sampler):
     hint = request.form["hint"]
     prompts = [["<sos>"] + list(hint)]
     print(prompts)
@@ -73,4 +63,20 @@ def forward():
     infer_result = re.split("[，。？！；：、]", infer_result)
     result = infer_result
     print(result)
+    
     return render_template('query.html', GenerateText=result)
+
+
+@app.route("/")
+def index():
+    return render_template('query.html')
+
+
+@app.route("/modern/", methods=['POST'])
+def modern():
+    return inference(modern_sampler)
+
+
+@app.route("/ancient/", methods=['POST'])
+def ancient():
+    return inference(ancient_sampler)

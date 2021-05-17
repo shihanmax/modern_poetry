@@ -51,8 +51,8 @@ model = Generator(
     pretrained_embeddings=None,
 )
 
-all_poems = load_ancient_poems(ancient_poems_path)[:300]
-# all_poems = load_modern_poems(modern_poems_path)[:30]
+# all_poems = load_ancient_poems(ancient_poems_path)[:300]
+all_poems = load_modern_poems(modern_poems_path)[:30]
 
 all_length = len(all_poems)
 test_num = round(test_ratio * all_length)

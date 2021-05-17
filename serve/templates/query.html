@@ -5,15 +5,21 @@
 
     <body>
         <br><br><br><br><br><br><br>
-        
-        <h1 align="center">MOON: A Modern pOet hiding on the cOmmand liNe.</h1>
-        <h4 align="center" style="color:#808080">命令行里的现代诗人</h4> 
-        <br>
+        <h1 align="center">MOON</h1>
+        <h3 align="center" style="color:#808080">A Modern pOet hiding on the cOmmand liNe &nbsp;&nbsp;|&nbsp;&nbsp; 命令行里的现代诗人</h3>
 
-        <form action="/gen/" method="post" align="center">
+        <br>
+        
+        <form action="/modern/" method="post" align="center">
             <label for="hint">Give me some hint:</label>
             <input type="hint" name="hint" id="hint" required>
-            <input type="submit" value="Generate!">
+            <input type="submit" value="写一首现代诗！">
+        </form>
+        <br>
+        <form action="/ancient/" method="post" align="center">
+            <label for="hint">Give me some hint:</label>
+            <input type="hint" name="hint" id="hint" required>
+            <input type="submit" value="写一首古体诗！">
         </form>
         <br>
 
@@ -23,7 +29,17 @@
             {% endfor %}
             {% if GenerateText %}
                 <a href="/">Clear output</a>
+            
+                <hr>
+                <h5 align="center">
+                    我叫MOON，是一位练习时长2天半的作诗练习生。<br>
+                    我醉心于古体诗和现代诗，共学习了34个时期35839位古代诗人共853367首<a href="https://github.com/Werneror/Poetry">古体诗</a>和1340位现代诗人的19367首<a href="https://github.com/sheepzh/poetry">现代诗</a>。<br>
+                    我不光学习的诗多，我忘性也特别大...这么跟你说吧，我写出来的东西，我自己都不认识...
+                </h5>
             {% endif%}
+             
         </div>
+        
+
     </body>
 </html>
