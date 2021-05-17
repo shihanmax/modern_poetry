@@ -21,7 +21,7 @@ class Generator(nn.Module):
             padding_idx=0,
         )
         
-        if pretrained_embeddings:
+        if pretrained_embeddings is not None:
             self.embedding = self.embedding.from_pretrained(
                 pretrained_embeddings, freeze=False, padding_idx=0,
             )

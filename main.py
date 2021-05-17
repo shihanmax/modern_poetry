@@ -48,7 +48,7 @@ model = Generator(
     hidden_dim=hidden_dim,
     rnn_layers=rnn_layers,
     device=device,
-    pretrained_embeddings=vocab.embedding.to(torch.float),
+    pretrained_embeddings=None,
 )
 
 all_poems = load_ancient_poems(ancient_poems_path)[:300]
