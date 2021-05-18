@@ -1,8 +1,8 @@
 import torch
 
 from .utils import translate_logits
-from modern_poetry.model import Generator
-from modern_poetry.vocab import Vocab
+from .model import Generator
+from .vocab import Vocab
 
 
 def do_sample(
